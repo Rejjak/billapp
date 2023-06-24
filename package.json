@@ -1,0 +1,101 @@
+{
+  "name": "muimyapp",
+  "description": "InApp billing system",
+  "author": {
+    "name": "Rejjak Ali",
+    "email": "rejjak.dev@gmail.com",
+    "linkedin": "https://www.linkedin/in/md-rejjak-ali-205",
+    "url": "http://rejjak.eu5.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rejjak/billapp.git"
+  },
+  "version": "0.1.0",
+  "homepage": "./",
+  "main": "./electron/main.js",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "0.19.2",
+    "body-parser": "1.19.0",
+    "chart.js": "^4.3.0",
+    "compression": "1.7.4",
+    "concurrently": "^7.6.0",
+    "cors": "2.8.5",
+    "electron-dl": "^3.5.0",
+    "electron-is-dev": "^2.0.0",
+    "electron-updater": "^6.1.1",
+    "express": "4.17.1",
+    "firebase": "^9.22.1",
+    "formik": "^2.2.9",
+    "helmet": "3.22.0",
+    "knex": "0.20.13",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.0.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.2",
+    "react-scripts": "5.0.1",
+    "react-to-print": "^2.14.12",
+    "sqlite3": "^5.0.0",
+    "systeminformation": "^5.18.3",
+    "to-words": "^3.5.0",
+    "wait-on": "^7.0.1",
+    "web-vitals": "^2.1.4",
+    "yup": "^1.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "package": "electron-builder build --publish never -w",
+    "deploy": "electron-builder build --publish always -w",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "build": {
+    "appId": "com.app.billapp",
+    "productName": "Billing App",
+    "files": [
+      "build/**/*",
+      "electron/main.js",
+      "electron/db.js",
+      "electron/dbquery.js",
+      "package.json"
+    ],
+    "extraResources": [
+      "db.sqlite"
+    ],
+    "extends": null,
+    "mac": {
+      "type": "distribution"
+    }
+  },
+  "devDependencies": {
+    "electron": "^22.1.0",
+    "electron-builder": "^23.6.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

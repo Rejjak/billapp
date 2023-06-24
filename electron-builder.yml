@@ -1,0 +1,4 @@
+appId: com.app.billapp
+publish:
+  provider: github
+  token: [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]
