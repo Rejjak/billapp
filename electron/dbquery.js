@@ -229,17 +229,18 @@ exports.updateSettings = () => {
 
 exports.getMacAdd = async() => {
     let event_name = 'macadd-get';
-    let msi = await si.baseboard();
+    let msi = await si.system();
     try{
         let stats = fs.statSync("db.sqlite");
         let fileSizeInBytes = stats.size;
         let fileSizeInGb = fileSizeInBytes / (1024*1024*1024);
+
         ipcMain.on(event_name, (event, arg) => {
-            event.reply(event_name+'-reply',{mac_add:msi.serial,db_size:fileSizeInGb.toFixed(2)});
+            event.reply(event_name+'-reply',{mac_add:msi.uuid,db_size:fileSizeInGb.toFixed(2)});
         });
     }catch(err){
         ipcMain.on(event_name, (event, arg) => {
-            event.reply(event_name+'-reply',{mac_add:msi.serial});
+            event.reply(event_name+'-reply',{mac_add:msi.uuid});
         });
     }
 }
