@@ -1,5 +1,7 @@
 node_modules/
 
-DA.zip
+dist/
 
-db.sqlite
+build/
+
+electron-builder-config.js

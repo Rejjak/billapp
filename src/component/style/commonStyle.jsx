@@ -38,6 +38,28 @@ const commonStyles = makeStyles((theme)=>({
             color:theme.palette.sidebarActiveColor
         }
     },
+    logout:{
+        marginLeft:10,
+        fontWeight:'bold',
+        fontSize:14,
+        color:theme.palette.type === 'dark' ? '#ccc' : 'rgba(0, 0, 0, 0.54)'
+    },
+    logoutIconColor : {
+        fontSize : '20px',
+        color:(theme.palette.type === 'dark') ? '#ccc' : 'rgba(0, 0, 0, 0.54)'
+    },
+    logoutContainer:{
+        height:50,
+        width:100,
+        position:'fixed',
+        bottom:10,
+        alignSelf:'center',
+        flexDirection:'row',
+        display:'flex',
+        justifyContent:'center',
+        alignItems:'center',
+        marginRight:'30px'
+    },
     navLinkActive:{
         color: theme.palette.sidebarActiveColor,
         "& div":{

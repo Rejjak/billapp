@@ -5,6 +5,8 @@ const db = require('./db');
 const fs = require("fs");
 const path = require('path');
 
+const userAppDataDir = app.getPath('userData');
+
 exports.addType = () => {
     let event_name = 'type-create';
     ipcMain.on(event_name, (event, arg) => {
@@ -253,8 +255,8 @@ exports.dbUpload = () => {
               dialog.showErrorBox('Error', `Unable to read file: ${errorn.message}`);
               return;
             }
-            const __filePath = path.join(__dirname,'../'+updatedName);
-            const __oldFilePath = path.join(__dirname,'../db.sqlite');
+            const __filePath = path.join(userAppDataDir,updatedName);
+            const __oldFilePath = path.join(userAppDataDir,'db.sqlite');
             fs.writeFile(__filePath, fileData, (error) => {
                 if (error) {
                   dialog.showErrorBox('Error', `Unable to save file: ${error.message}`);
@@ -262,33 +264,38 @@ exports.dbUpload = () => {
                 }
                 
                 const sqlite3 = require('sqlite3').verbose();
-                const db = new sqlite3.Database('new_db.sqlite', sqlite3.OPEN_READONLY, (errn) => {
+                const dbCheck = new sqlite3.Database(__filePath, sqlite3.OPEN_READONLY, (errn) => {
                     if (errn) {
                         dialog.showErrorBox('Error', `Unable to process file: ${errn.message}`);
                         return;
                     }
                 
-                    db.get('SELECT sqlite_version() AS version', (err, row) => {
+                    dbCheck.get('SELECT sqlite_version() AS version', (err, row) => {
                         if (err) {
                             dialog.showErrorBox('Error', `Invalid SQLite file: ${err.message}`);
                         } else {
                             if(row.version === '3.41.1'){
-                                fs.rename(__filePath, __oldFilePath, (errd) => {
-                                    if (errd) {
+                                dbCheck.close((errb) => {
+                                    if(errb){
+                                        console.log(errb);
+                                    }
+                                    db.destroy().then(()=>{
+                                        fs.rename(__filePath, __oldFilePath, (errd) => {
+                                            if (errd) {
+                                                dialog.showErrorBox('Error', 'Operation faild, please try again');
+                                                return;
+                                            }
+                                            event.reply(event_name+'-reply',{status:true,message:'File uploaded successfully'});
+                                        });
+                                    }).catch((err)=>{
                                         dialog.showErrorBox('Error', 'Operation faild, please try again');
                                         return;
-                                    }
-                                    event.reply(event_name+'-reply',{status:true,message:'File uploaded successfully'});
+                                    })
                                 });
                             }else{
                                 dialog.showErrorBox('Error', 'This file could not be supported');
                             }
                         }
-                        db.close((errb) => {
-                            if(errb){
-                                console.log(errb);
-                            }
-                        });
                     });
                 });
                 
@@ -300,7 +307,7 @@ exports.dbUpload = () => {
 exports.dbDownload = ()=> {
     let event_name = 'db-file-download';
     ipcMain.on(event_name, (event, arg) => {
-        const dbFilePath = path.join(__dirname,'../db.sqlite');
+        const dbFilePath = path.join(userAppDataDir,'db.sqlite');
         download(BrowserWindow.getFocusedWindow(), `file://${dbFilePath}`, { saveAs: true, filename: 'backup.wtt' }).then(dl => {
           console.log('File downloaded successfully:', dl.getSavePath());
         }).catch(err => {
@@ -314,5 +321,20 @@ exports.reStartApp = ()=> {
     ipcMain.on(event_name, (event, arg) => {
         app.relaunch();
         app.quit();
+    });
+}
+
+exports.showAlert = (mainWindow,iconPath)=> {
+    let event_name = 'show-alert';
+    ipcMain.on(event_name, (event, arg) => {
+        dialog.showMessageBox(mainWindow,{
+            type:'info',
+            title:'Binamate',
+            message:arg.title,
+            detail:arg.msg,
+            icon:iconPath,
+        }).then(({response})=>{
+           //slepp
+        })
     });
 }

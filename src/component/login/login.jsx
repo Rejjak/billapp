@@ -31,6 +31,7 @@ const Login = ()=> {
 
     useEffect(()=>{
         getSettings();
+        RequestService.onRequest('update-progress',()=>{});
     },[]);
 
     const doLogin = (event) => {

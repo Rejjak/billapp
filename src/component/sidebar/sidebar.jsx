@@ -1,9 +1,20 @@
 import React,{useContext} from 'react';
-import {AppBar,Typography, Toolbar, Drawer, List,ListItem, ListItemIcon, ListItemText, Hidden,Grid} from '@material-ui/core';
+import {AppBar,Typography, Toolbar, Drawer, List,ListItem, ListItemIcon, ListItemText, Hidden,Grid, Box} from '@material-ui/core';
 import commonStyles from '../style/commonStyle';
 import {ColorModeContext} from '../../store';
-import {NotificationsActive, Settings, Person,Power,Dashboard,Loyalty} from '@material-ui/icons';
+import {NotificationsActive, Settings, Person,Power,Dashboard,Loyalty,PowerSettingsNew, Category, Receipt} from '@material-ui/icons';
 import {NavLink} from 'react-router-dom';
+
+const MyNavLink = React.forwardRef((props,ref) => (
+    <NavLink
+        ref={ref}
+        {...props}
+        className={({ isActive }) => `${props.className} ${isActive ? props.activeclassname : ''}`}
+    >
+      {props.children}
+    </NavLink>
+));
+
 function ListItemData({handleClick}){
     const classes = commonStyles();
     const listItem = [
@@ -15,7 +26,7 @@ function ListItemData({handleClick}){
         {
             label : 'Category',
             link : '/category',
-            icon : <Loyalty/>
+            icon : <Category/>
         },
         {
             label : 'Brand',
@@ -30,29 +41,14 @@ function ListItemData({handleClick}){
         {
             label : 'Sales',
             link : '/sales',
-            icon : <Person/>
+            icon : <Receipt/>
         },
         {
             label : 'Settings',
             link : '/settings',
             icon : <Settings/>
         },
-        {
-            label : 'Logout',
-            link : '/',
-            icon : <Power/>
-        }
     ];
-
-    const MyNavLink = React.forwardRef((props,ref) => (
-        <NavLink
-            ref={ref}
-            {...props}
-            className={({ isActive }) => `${props.className} ${isActive ? props.activeclassname : ''}`}
-        >
-          {props.children}
-        </NavLink>
-    ));
 
     return (
         <List>
@@ -93,15 +89,19 @@ function Sidebar({showMobileMenu,handleClick}) {
                 open={true}
                 // onClose={}
                 >
-                <ListItemData handleClick={(e)=>{
-                    if(e.target.innerHTML == 'Logout'){
-                        updateLogin(false);
-                    }
-                }}/>
-                <div style={{height:50,width:200,position:'fixed',bottom:10,alignSelf:'center',flexDirection:'row',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                    <Power/>
-                    <Typography>Logout</Typography>
-                </div>
+                <ListItemData/>
+                <Box className={classes.logoutContainer}>
+                    <ListItem 
+                    activeclassname={classes.navLinkActive}
+                    onClick={()=>updateLogin(false)}
+                    end={true}
+                    component={MyNavLink}
+                    to={''}
+                    className={classes.navLink}>
+                        <PowerSettingsNew className={classes.logoutIconColor}/>
+                        <Typography className={classes.logout}>Logout</Typography>
+                    </ListItem>
+                </Box>
                 </Drawer>
                 
             </Hidden>

@@ -32,6 +32,17 @@ const PrintView = ()=> {
         getInvoice();
     },[]);
 
+    const showAlert = async(msg)=> {
+        let payload = {
+            req_url : 'show-alert',
+            data : {
+                title : 'Application not activated',
+                msg:msg
+            }
+        }
+        await RequestService.addRequest(payload)
+    }
+
     return (
         <Box mt={2}>
             {
@@ -49,7 +60,7 @@ const PrintView = ()=> {
                                 trigger={() => <Button className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>}
                                 content={() => componentRef.current}
                                 />:
-                                <Button onClick={()=>alert(licenceData.alertMsg.message)} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>
+                                <Button onClick={()=>showAlert(licenceData.alertMsg.message)} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>
                             }
                             </>
                         }

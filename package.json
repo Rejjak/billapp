@@ -1,5 +1,5 @@
 {
-  "name": "muimyapp",
+  "name": "binamate",
   "description": "InApp billing system",
   "author": {
     "name": "Rejjak Ali",
@@ -51,30 +51,12 @@
   },
   "scripts": {
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
-    "package": "electron-builder build --publish never -w",
-    "deploy": "electron-builder build --publish always -w",
+    "package": "electron-builder --config electron-builder-config.js --publish never -w",
+    "deploy": "electron-builder --config electron-builder-config.js --publish always -w",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "build": {
-    "appId": "com.app.billapp",
-    "productName": "Billing App",
-    "files": [
-      "build/**/*",
-      "electron/main.js",
-      "electron/db.js",
-      "electron/dbquery.js",
-      "package.json"
-    ],
-    "extraResources": [
-      "db.sqlite"
-    ],
-    "extends": null,
-    "mac": {
-      "type": "distribution"
-    }
   },
   "devDependencies": {
     "electron": "^22.1.0",

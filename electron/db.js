@@ -1,8 +1,12 @@
-// Create connection to SQLite database
+const { ipcMain, dialog, app, BrowserWindow } = require('electron');
+const path = require('path');
+const userAppDataDir = app.getPath('userData');
+const dbFilePath = path.join(userAppDataDir,'db.sqlite');
+
 const knex = require('knex')({
   client: 'sqlite3',
   connection: {
-    filename: 'db.sqlite',
+    filename: dbFilePath,
   },
   pool: {
     min: 2,

@@ -1,7 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const isDev = require('electron-is-dev');
 const dbquery = require('./dbquery');
+const updater = require('./updater');
 const path = require('path');
  
 let mainWindow;
@@ -18,23 +19,26 @@ let mainWindow;
 // autoUpdater.autoDownload = false;
 
 function createWindow() {
+    const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+    const iconPath = isDev ? './public/app_icon.ico' : `file://${path.join(__dirname, '../build/app_icon.ico')}`;
     mainWindow = new BrowserWindow({
         width:1250,
         minWidth:1250,
         height:700,
         show: false,
+        icon:iconPath,
+        title:'Binamate',
         webPreferences: {
             nodeIntegration : true,
             contextIsolation: false
         }
     });
-    const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
  
     mainWindow.loadURL(startURL);
 
     mainWindow.once('ready-to-show', () => {
+        Menu.setApplicationMenu(null);
         mainWindow.show();
-        mainWindow.webContents.openDevTools();
         dbquery.addType();
         dbquery.getType();
         dbquery.deleteType();
@@ -53,7 +57,10 @@ function createWindow() {
         dbquery.dbUpload();
         dbquery.dbDownload();
         dbquery.reStartApp();
-        
+        dbquery.showAlert(mainWindow,iconPath);
+        updater(mainWindow,iconPath);
+
+        mainWindow.webContents.openDevTools();
     });
     mainWindow.on('closed', () => {
         mainWindow = null;
