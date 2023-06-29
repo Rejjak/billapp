@@ -24,7 +24,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width:1250,
         minWidth:1250,
-        height:700,
+        minHeight:700,
         show: false,
         icon:iconPath,
         title:'Binamate',

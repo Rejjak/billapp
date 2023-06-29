@@ -373,7 +373,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text_app}>Application Status</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Following options are needs to be verified.</Typography>
+                            <Typography style={{marginTop:5}} variant={'subtitle2'}>The following options need to be verified.</Typography>
                             <Box style={{marginLeft:5}} mt={2}>
                                 <Grid alignItems='center' container spacing={2}>
                                     {
@@ -411,7 +411,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text_app}>App Version</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>You are using latest version of the app.</Typography>
+                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Updated version fo the application.</Typography>
                             <Box mt={5.9}>
                                 <Typography className={classes.appVer} variant={'h5'}>{'0.'+pkg.version}</Typography>
                             </Box>

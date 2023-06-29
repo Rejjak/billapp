@@ -316,8 +316,8 @@ function Product(props) {
                     </Box>
                     <Box mt={4}>
                         <Grid container style={{justifyContent:'space-between',alignItems:'center'}}>
-                            <TextField defaultValue={editData != null ? editData.stock : ''} onKeyPress={(e)=>onlyNumber(e)} name={'stock'} onChange={formik.handleChange} color={'secondary'} label="Stocks" variant={'standard'} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*'}} />
-                            <TextField defaultValue={editData != null ? editData.price : ''} onKeyPress={(e)=>priceInput(e)} name={'price'} onChange={formik.handleChange} color={'secondary'} label="Price" variant={'standard'} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                            <TextField style={{width:170}} defaultValue={editData != null ? editData.stock : ''} onKeyPress={(e)=>onlyNumber(e)} name={'stock'} onChange={formik.handleChange} color={'secondary'} label="Stocks" variant={'standard'} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*'}} />
+                            <TextField style={{width:170}} defaultValue={editData != null ? editData.price : ''} onKeyPress={(e)=>priceInput(e)} name={'price'} onChange={formik.handleChange} color={'secondary'} label="Price" variant={'standard'} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
                             <TextField style={{opacity:appSettings.cust_type == 1 ? 0 : 1}} defaultValue={editData != null ? editData.sp_price : ''} onKeyPress={(e)=>priceInput(e)} name={'specialPrice'} onChange={formik.handleChange} color={'secondary'} label="Special Price" variant={'standard'} 
                             inputProps={{ 
                                 inputMode: 'numeric', 
