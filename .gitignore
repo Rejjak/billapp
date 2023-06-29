@@ -3,5 +3,3 @@ node_modules/
 dist/
 
 build/
-
-electron-builder-config.js
