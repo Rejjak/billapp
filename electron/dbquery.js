@@ -1,4 +1,5 @@
 const { ipcMain, dialog, app, BrowserWindow } = require('electron');
+const { getSalesAmount, getMonthlyData, formatDailyChartData } = require('./calculation');
 const { download } = require('electron-dl');
 const si = require('systeminformation');
 const db = require('./db');
@@ -8,7 +9,7 @@ const path = require('path');
 const userAppDataDir = app.getPath('userData');
 
 exports.addType = () => {
-    let event_name = 'type-create';
+    const event_name = 'type-create';
     ipcMain.on(event_name, (event, arg) => {
         if(arg.prd_id != undefined){
             db('prd_types').update({
@@ -34,7 +35,7 @@ exports.addType = () => {
 }
 
 exports.getType = () => {
-    let event_name = 'type-get';
+    const event_name = 'type-get';
     ipcMain.on(event_name, (event, arg) => {
         db.select('*').from('prd_types').orderBy('id','desc').then((res) => {
             event.reply(event_name+'-reply',res);
@@ -45,7 +46,7 @@ exports.getType = () => {
 }
 
 exports.deleteType = () => {
-    let event_name = 'type-delete';
+    const event_name = 'type-delete';
     ipcMain.on(event_name, (event, arg) => {
         db.delete().from('prd_types').where('id',arg.id).then((res) => {
             event.reply(event_name+'-reply',res);
@@ -56,7 +57,7 @@ exports.deleteType = () => {
 }
 
 exports.addBrand = () => {
-    let event_name = 'brand-create';
+    const event_name = 'brand-create';
     ipcMain.on(event_name, (event, arg) => {
         if(arg.prd_id != undefined){
             db('brands').update({
@@ -82,7 +83,7 @@ exports.addBrand = () => {
 }
 
 exports.getBrand = () => {
-    let event_name = 'brand-get';
+    const event_name = 'brand-get';
     ipcMain.on(event_name, (event, arg) => {
         db.select('*').from('brands').orderBy('id','desc').then((res) => {
             event.reply(event_name+'-reply',res);
@@ -93,7 +94,7 @@ exports.getBrand = () => {
 }
 
 exports.deleteBrand = () => {
-    let event_name = 'brand-delete';
+    const event_name = 'brand-delete';
     ipcMain.on(event_name, (event, arg) => {
         db.delete().from('brands').where('id',arg.id).then((res) => {
             event.reply(event_name+'-reply',res);
@@ -104,7 +105,7 @@ exports.deleteBrand = () => {
 }
 
 exports.addProduct = () => {
-    let event_name = 'product-create';
+    const event_name = 'product-create';
     ipcMain.on(event_name, (event, arg) => {
         if(arg.prd_id != undefined){
             db('products').update({
@@ -140,7 +141,7 @@ exports.addProduct = () => {
 }
 
 exports.getProduct = () => {
-    let event_name = 'product-get';
+    const event_name = 'product-get';
     ipcMain.on(event_name, (event, arg) => {
         db.select('*').from('products').orderBy('id','desc').then((res) => {
             event.reply(event_name+'-reply',res);
@@ -151,7 +152,7 @@ exports.getProduct = () => {
 }
 
 exports.deleteProduct = () => {
-    let event_name = 'product-delete';
+    const event_name = 'product-delete';
     ipcMain.on(event_name, (event, arg) => {
         db.delete().from('products').where('id',arg.id).then((res) => {
             event.reply(event_name+'-reply',res);
@@ -162,7 +163,7 @@ exports.deleteProduct = () => {
 }
 
 exports.addSale = () => {
-    let event_name = 'sales-create';
+    const event_name = 'sales-create';
     ipcMain.on(event_name, (event, arg) => {
         db('sales_history').insert({
             items : JSON.stringify(arg.items),
@@ -178,7 +179,7 @@ exports.addSale = () => {
 }
 
 exports.getSales = () => {
-    let event_name = 'sales-get';
+    const event_name = 'sales-get';
     ipcMain.on(event_name, (event, arg) => {
         if(arg != undefined && arg.id != undefined){
             db.select('*').from('sales_history').where('id',arg.id).then((res) => {
@@ -187,17 +188,48 @@ exports.getSales = () => {
                 event.reply(event_name+'-reply',err);
             })
         }else{
-            db.select('*').from('sales_history').orderBy('id','desc').then((res) => {
-                event.reply(event_name+'-reply',res);
-            }).catch(err => {
-                event.reply(event_name+'-reply',err);
-            })
+            if(arg?.page != undefined){
+                const pageSize = 50;
+                const currentPage = arg.page;
+                const offset = (currentPage - 1) * pageSize;
+
+                db.select('*').from('sales_history').orderBy('id','desc').limit(pageSize).offset(offset).then((res) => {
+                    event.reply(event_name+'-reply',res);
+                }).catch(err => {
+                    event.reply(event_name+'-reply',err);
+                })
+            }else{
+                db.select('*').from('sales_history').orderBy('id','desc').then((res) => {
+                    event.reply(event_name+'-reply',res);
+                }).catch(err => {
+                    event.reply(event_name+'-reply',err);
+                })
+            }
         }
     });
 }
 
+exports.getStatistics = ()=> {
+    const event_name = 'dashboard-statistics';
+    ipcMain.on(event_name, (event, arg) => {
+        db.select('total_amount', 'added_on').from('sales_history').then((res) => {
+            const chartDataMontly = getMonthlyData(res);
+            const countValue = res.length;
+            let data = {
+                monthlyData : chartDataMontly.map((ele)=>ele.total_amount),
+                dailyData : formatDailyChartData(res),
+                salesAmount : getSalesAmount(res),
+                salesCount : countValue
+            }
+            event.reply(event_name+'-reply',data);
+        }).catch(err => {
+            event.reply(event_name+'-reply',err);
+        })
+    });
+}
+
 exports.deleteSale = () => {
-    let event_name = 'sales-delete';
+    const event_name = 'sales-delete';
     ipcMain.on(event_name, (event, arg) => {
         db.delete().from('sales_history').where('id',arg.id).then((res) => {
             event.reply(event_name+'-reply',res);
@@ -208,7 +240,7 @@ exports.deleteSale = () => {
 }
 
 exports.getSettings = () => {
-    let event_name = 'settings-get';
+    const event_name = 'settings-get';
     ipcMain.on(event_name, (event, arg) => {
         db.select('*').from('app_setting').then((res) => {
             event.reply(event_name+'-reply',res);
@@ -219,7 +251,7 @@ exports.getSettings = () => {
 }
 
 exports.updateSettings = () => {
-    let event_name = 'settings-update';
+    const event_name = 'settings-update';
     ipcMain.on(event_name, (event, arg) => {
         db('app_setting').update(arg).where('id','=',1).then(() => {
             event.reply(event_name+'-reply','settings updated!');
@@ -230,13 +262,13 @@ exports.updateSettings = () => {
 }
 
 exports.getMacAdd = async() => {
-    let event_name = 'macadd-get';
+    const event_name = 'macadd-get';
     let msi = await si.system();
+    let dbFile = path.join(userAppDataDir,'db.sqlite');
     try{
-        let stats = fs.statSync("db.sqlite");
+        let stats = fs.statSync(dbFile);
         let fileSizeInBytes = stats.size;
         let fileSizeInGb = fileSizeInBytes / (1024*1024*1024);
-
         ipcMain.on(event_name, (event, arg) => {
             event.reply(event_name+'-reply',{mac_add:msi.uuid,db_size:fileSizeInGb.toFixed(2)});
         });
@@ -248,7 +280,7 @@ exports.getMacAdd = async() => {
 }
 
 exports.dbUpload = () => {
-    let event_name = 'db-file-upload';
+    const event_name = 'db-file-upload';
     ipcMain.on(event_name, (event, { filePath, updatedName }) => {
         fs.readFile(filePath, (errorn, fileData) => {
             if (errorn) {
@@ -305,7 +337,7 @@ exports.dbUpload = () => {
 }
 
 exports.dbDownload = ()=> {
-    let event_name = 'db-file-download';
+    const event_name = 'db-file-download';
     ipcMain.on(event_name, (event, arg) => {
         const dbFilePath = path.join(userAppDataDir,'db.sqlite');
         download(BrowserWindow.getFocusedWindow(), `file://${dbFilePath}`, { saveAs: true, filename: 'backup.wtt' }).then(dl => {
@@ -317,7 +349,7 @@ exports.dbDownload = ()=> {
 }
 
 exports.reStartApp = ()=> {
-    let event_name = 'restart-app';
+    const event_name = 'restart-app';
     ipcMain.on(event_name, (event, arg) => {
         app.relaunch();
         app.quit();
@@ -325,7 +357,7 @@ exports.reStartApp = ()=> {
 }
 
 exports.showAlert = (mainWindow,iconPath)=> {
-    let event_name = 'show-alert';
+    const event_name = 'show-alert';
     ipcMain.on(event_name, (event, arg) => {
         dialog.showMessageBox(mainWindow,{
             type:'info',

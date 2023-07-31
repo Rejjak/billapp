@@ -2,11 +2,10 @@ import React,{useState,lazy,Suspense,useContext} from 'react';
 import {ColorModeContext} from '../../store';
 import HeaderComponent from '../header/header';
 import Sidebar from '../sidebar/sidebar';
-import {BrowserRouter, Routes, Route, HashRouter} from 'react-router-dom'
-import { Box, CircularProgress } from "@material-ui/core";
+import {Routes, Route, HashRouter} from 'react-router-dom'
+import { Box } from "@material-ui/core";
 import commonStyles from "../style/commonStyle";
 const Dashboard = lazy(()=>import('../dashboard/dashboard'));
-const Home = lazy(()=>import('../home/home'));
 const Product = lazy(()=>import('../product/product'));
 const Brand = lazy(()=>import('../brand/brand'));
 const Category = lazy(()=>import('../category/category'));

@@ -7,6 +7,7 @@ module.exports = {
     "electron/db.js",
     "electron/dbquery.js",
     "electron/updater.js",
+    "electron/calculation.js",
     "package.json"
   ],
   "win": {

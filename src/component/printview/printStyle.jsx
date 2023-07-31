@@ -45,9 +45,9 @@ const printStyles = makeStyles((theme)=>({
         textShadow:"3px 3px 3px #ababab"
     },
     shopAdd:{
-        fontSize:'12px',
+        fontSize:'14px',
         color:'#3397BD',
-        fontFamily: "Verdana, Geneva, Tahoma, sans-serif"
+        fontFamily: "Roboto-Medium, sans-serif"
     },
     shopProf:{
         fontSize:'22px',

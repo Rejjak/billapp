@@ -2,6 +2,10 @@
   font-family: 'Sofia';
   src: local('Sofia'), url(./fonts/Sofia-Regular.ttf) format('opentype');
 }
+@font-face {
+  font-family: 'Roboto-Medium';
+  src: local('Roboto-Medium'), url(./fonts/Roboto-Medium.ttf) format('opentype');
+}
 
 .App {
   text-align: center;

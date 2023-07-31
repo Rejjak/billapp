@@ -1,6 +1,8 @@
 import {ThemeProvider,createTheme,CssBaseline,colors} from '@material-ui/core';
 import {useMemo,useState,createContext,useEffect} from 'react';
 const defatultExtraData = {'tax':'','discount':'','cust_rate':1,'biller_name':'','biller_phone':'','biller_add':''};
+const defaultAccessLimit = 50;
+
 export const ColorModeContext = createContext({
     /**
      * Change theme
@@ -30,6 +32,7 @@ export const ColorModeContext = createContext({
     /**
      * Update tax and discount data
      */
+    defaultAccessLimit : defaultAccessLimit,
     bagExtraData : defatultExtraData,
     defaultBagData : defatultExtraData,
     updateBagExtraData : (d)=> {},
@@ -54,6 +57,18 @@ export const ColorModeContext = createContext({
      */
      isLogin : false,
      updateLogin : (d)=> {},
+
+    /**
+     * dashboard data
+     */
+     salesCount : 0,
+     monthlyData : null,
+     dailyData : null,
+     salesAmount : null,
+     updateMonthlyData : (d)=> {},
+     updateDailyData : (d)=> {},
+     updateSalesAmount : (d)=> {},
+     updateSalesCount : (d)=> {},
 });
 
 export const ColorContextProvider = ({children})=> {
@@ -69,6 +84,10 @@ export const ColorContextProvider = ({children})=> {
     const [settings,setSettings] = useState([]);
     const [licence,setLicence] = useState(null);
     const [login,setLogin] = useState(false);
+    const [sales,setSalesCount] = useState(0);
+    const [monthlyData,setMonthlyData] = useState(null);
+    const [dailyData,setDailyData] = useState(null);
+    const [salesAmount,setSalesAmount] = useState(null);
 
     const colorContextValue = useMemo(()=>({
         toggleMode : () => setMode(prevMode => {
@@ -99,6 +118,17 @@ export const ColorContextProvider = ({children})=> {
         licenceData : licence,
         updateLicence : (data)=> setLicence(data)
     }),[licence])
+
+    const dashboardContextValue = useMemo(()=>({
+        salesCount : sales,
+        monthlyData : monthlyData,
+        dailyData : dailyData,
+        salesAmount : salesAmount,
+        updateMonthlyData : (data)=> setMonthlyData(data),
+        updateDailyData : (data)=> setDailyData(data),
+        updateSalesAmount : (data)=> setSalesAmount(data),
+        updateSalesCount : (data)=> setSalesCount(data)
+    }),[dailyData])
 
     const loginContextValue = useMemo(()=>({
         isLogin : login,
@@ -276,7 +306,7 @@ export const ColorContextProvider = ({children})=> {
     },[defaultLight])
 
     return (
-        <ColorModeContext.Provider value={{...colorContextValue,...dataContextValue,...typeContextValue,...brandContextValue,...bagExtraDataContextValue,...productContextValue,...lightThemeContextValue,...settingsContextValue,...licenceContextValue,...loginContextValue}}>
+        <ColorModeContext.Provider value={{...colorContextValue,...dataContextValue,...typeContextValue,...brandContextValue,...bagExtraDataContextValue,...productContextValue,...lightThemeContextValue,...settingsContextValue,...licenceContextValue,...loginContextValue,...dashboardContextValue}}>
             <ThemeProvider theme={defaultMode === 'light' ? getTheme : darkTheme}>
                 <CssBaseline/>
                 {children}

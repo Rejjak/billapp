@@ -1,0 +1,11 @@
+@keyframes loader-rotation {
+  0% {
+    background-position: 0 0; /* Starting position */
+  }
+  100% {
+    background-position: -100px 0; /* Ending position */
+  }
+}
+  
+  
+  

@@ -2,7 +2,7 @@ import React,{useContext} from 'react';
 import {AppBar,Typography, Toolbar, Drawer, List,ListItem, ListItemIcon, ListItemText, Hidden,Grid, Box} from '@material-ui/core';
 import commonStyles from '../style/commonStyle';
 import {ColorModeContext} from '../../store';
-import {NotificationsActive, Settings, Person,Power,Dashboard,Loyalty,PowerSettingsNew, Category, Receipt} from '@material-ui/icons';
+import {NotificationsActive, Settings, Person,Power,Dashboard,Loyalty,PowerSettingsNew, Category, Receipt, Dvr, Layers} from '@material-ui/icons';
 import {NavLink} from 'react-router-dom';
 
 const MyNavLink = React.forwardRef((props,ref) => (
@@ -24,19 +24,19 @@ function ListItemData({handleClick}){
             icon : <Dashboard/>
         },
         {
-            label : 'Category',
+            label : 'Products',
+            link : '/product',
+            icon : <Layers/>
+        },
+        {
+            label : 'Categories',
             link : '/category',
             icon : <Category/>
         },
         {
-            label : 'Brand',
+            label : 'Brands',
             link : '/brand',
             icon : <Loyalty/>
-        },
-        {
-            label : 'Product',
-            link : '/product',
-            icon : <Person/>
         },
         {
             label : 'Sales',
@@ -47,7 +47,7 @@ function ListItemData({handleClick}){
             label : 'Settings',
             link : '/settings',
             icon : <Settings/>
-        },
+        }
     ];
 
     return (

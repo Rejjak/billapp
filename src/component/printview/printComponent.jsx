@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect,memo,useContext,useRef, forwardRef } from 'react';
-import {Box,Grid, Typography, TableContainer,Table,TableBody,TableCell,TableHead,TableRow, Paper, IconButton, TextField, Button, Tooltip, makeStyles, Card, CardContent,Select,MenuItem,InputLabel} from '@material-ui/core';
+import {Box,Grid, Typography,Table,TableBody,TableCell,TableHead,TableRow} from '@material-ui/core';
 import printStyles from './printStyle';
 import cornerImg from './trn.png';
 import cornerImgD from './trnd.png';
@@ -12,18 +12,24 @@ function ccyFormat(num) {
 }
 
 function formatDate(date_obj){
-    var date = new Date(date_obj);
-    var day = date.getDate();
-    var month = date.getMonth()+1;
-    var year = date.getFullYear();
-    if(day<10){
-        day = '0'+day;
-    }
-    if(month<10){
-        month = '0'+month;
-    }
-    var curDate = day+'/'+month+'/'+year;
-    return curDate;
+    // var date = new Date(date_obj);
+    // var day = date.getDate();
+    // var month = date.getMonth()+1;
+    // var year = date.getFullYear();
+    // if(day<10){
+    //     day = '0'+day;
+    // }
+    // if(month<10){
+    //     month = '0'+month;
+    // }
+    // var curDate = day+'/'+month+'/'+year;
+    // return curDate;
+
+    return new Date(date_obj).toLocaleString('en-US',{
+        day:'2-digit',
+        month:'2-digit',
+        year:'numeric'
+    })
 }
 
 function priceRow(qty, price) {
@@ -80,13 +86,13 @@ const BlankRow = ({title,children,isLast})=> {
 }
 
 const PrintComponent = forwardRef((props, ref) => {
+    const {settingsData,licenceData} = useContext(ColorModeContext);
     const isDisplay = props.isDisplay;
     const invData = props.data[0];
     const classes = printStyles();
     const itemsData = JSON.parse(invData.items);
     const buyerData = JSON.parse(invData.bag_extra);
     const [subtotal,setSubTotal] = useState();
-    const {settingsData} = useContext(ColorModeContext);
     const mySettings = settingsData[0];
 
     const getPrice = (ele)=> {
@@ -105,7 +111,7 @@ const PrintComponent = forwardRef((props, ref) => {
       <div style={{backgroundColor:'#ffffff'}} ref={ref}>
         <div style={{position:'relative',padding:45}}>
             <Grid container style={{justifyContent:'space-between'}}>
-                <Grid style={{paddingRight:20}} item xs={12} sm={6}>
+                <Grid container style={{paddingRight:20}} item xs={12} sm={6}>
                     <Typography style={{position:'relative',bottom:8}} className={classes.shopName}>{mySettings.com_name}</Typography>
                 </Grid>
                 <Grid style={{justifyContent:'flex-end',zIndex:1}} item xs={12} sm={6}>
@@ -123,16 +129,21 @@ const PrintComponent = forwardRef((props, ref) => {
                     src={cornerImg}
                 />
             </Grid>
-            <Grid container style={{justifyContent:'center',marginTop:15}}>
-                <Typography className={classes.shopProf}>Prop. : {mySettings.own_name}</Typography>
+            <Grid container style={{justifyContent:'center',marginTop:15,alignItems:'center'}}>
+                <Box style={{height:2,width:'100%',position:'absolute',paddingLeft:45,paddingRight:45}}>
+                    <Box borderTop={2} style={{height:2,width:'100%',borderColor:'#3397BD'}}/>
+                </Box>   
+                <Box style={{zIndex:111,backgroundColor:'#ffffff',paddingLeft:30,paddingRight:30}}>
+                    <Typography className={classes.shopProf}>Prop. : {mySettings.own_name}</Typography>
+                </Box>
             </Grid>
-            <Grid container style={{justifyContent:'space-between',marginTop:25}}>
+            <Grid container style={{justifyContent:'space-between',marginTop:30}}>
             <Grid style={{paddingRight:20}} item xs={12} sm={6}>
                     <Typography component={'h2'} className={classes.invoiceNo}>Invoice No: {invData.id}</Typography>
                     <Typography className={classes.fontStl}>Date: {formatDate(invData.added_on)}</Typography>
             </Grid>
             <Grid style={{justifyContent:'flex-end'}} item xs={12} sm={6}>
-            <Typography style={{textAlign:'right'}} className={classes.invoiceNo}>Buyer Details</Typography>
+            <Typography style={{textAlign:'right'}} className={classes.invoiceNo}>Customer Details</Typography>
                 <Typography style={{textAlign:'right'}} className={classes.fontStl}>Name: {buyerData.biller_name}{buyerData.biller_phone != '' ? ", Phone: "+buyerData.biller_phone:''}</Typography>
                 {
                    buyerData.biller_add != '' &&
@@ -221,9 +232,12 @@ const PrintComponent = forwardRef((props, ref) => {
                     <Typography className={classes.shopAddFooter}>WhatsApp: {mySettings.own_wp}</Typography>
                     <Typography className={classes.shopAddFooter}>Email: {mySettings.own_email}</Typography>
                 </Grid>
-                <Grid style={{position:'absolute',right:40,marginTop:50}} item xs={12} sm={4}>
-                    <Typography className={classes.devText}>{'Developed by Rejjak Ali'}</Typography>
-                </Grid>
+                {
+                    (licenceData != null && licenceData.showAlert) &&
+                    <Grid style={{position:'absolute',right:40,marginTop:50}} item xs={12} sm={4}>
+                        <Typography className={classes.devText}>{'Developed by Rejjak Ali'}</Typography>
+                    </Grid>
+                }
             </Grid>
         }
       </div>

@@ -3,7 +3,7 @@ import {Box,Grid,Card,CardContent,Typography,makeStyles,Button} from '@material-
 import RequestService from '../../service/requestService';
 import FireStoreService from '../../service/firestore';
 import {ColorModeContext} from '../../store';
-import {getMonthlyData,getSalesAmount,formatDailyChartData} from '../../service/calculation';
+import '../common/loader/basicLoader.css';
 
 import {
     Chart as ChartJS,
@@ -16,6 +16,15 @@ import {
     Legend,
   } from 'chart.js';
   import { Line } from 'react-chartjs-2';
+
+  const currDate = new Date();
+  const currYear = currDate.getFullYear();
+  
+  const optionsDay = { day: 'numeric', month: 'long', year: 'numeric' };
+  const dayName = currDate.toLocaleDateString('en-US', optionsDay);
+  
+  const optionsMonth = { month: 'long', year: 'numeric' };
+  const monthName = currDate.toLocaleDateString('en-US', optionsMonth);
 
   ChartJS.register(
     CategoryScale,
@@ -36,7 +45,7 @@ const options = {
       },
       title: {
         display: true,
-        text: 'Current year monthly data',
+        text: 'Current year monthly data - '+currYear,
       },
       scales: {
         x: {
@@ -69,7 +78,7 @@ const optionsdaily = {
       },
       title: {
         display: true,
-        text: 'Current month daily data',
+        text: 'Current month daily data - '+monthName,
       },
       scales: {
         x: {
@@ -88,22 +97,21 @@ const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const formatData = {
     labels,
     datasets: [
-      {
-        label: '',
-        data: [],
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        borderWidth:3
+        {
+            label: 'Total Amount',
+            data: [],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderWidth:3
         }
     ],
 };
 
+
+
 function Dashboard(props) {
     const classes = Styles();
-    const {typeData,brandData,updateType,updateBrand,productData,updateProduct,updateSettngs,updateLicence,licenceData} = useContext(ColorModeContext);
-    const [data,setData] = useState(null);
-    const [dailyData,setDailyData] = useState(null);
-    const [salesAmount,setSalesAmount] = useState(null);
+    const {typeData,brandData,updateType,updateBrand,productData,updateProduct,updateSettngs,updateLicence,licenceData,monthlyData,dailyData,salesAmount,updateMonthlyData,updateDailyData,updateSalesAmount,updateSalesCount} = useContext(ColorModeContext);
 
     useEffect(()=>{
         getType();
@@ -118,17 +126,16 @@ function Dashboard(props) {
 
     const getSales = ()=> {
         let payload = {
-            req_url : 'sales-get',
+            req_url : 'dashboard-statistics',
             data : null
         }
         RequestService.addRequest(payload).then((res)=>{
-            const chartData = getMonthlyData(res);
-            setSalesAmount(getSalesAmount(res));
-            setDailyData(formatDailyChartData(res))
             const newData = {...formatData};
-            newData.datasets[0].data = chartData.map((ele)=>ele.total_amount);
-            setData(newData);
-            console.log(formatDailyChartData(res));
+            newData.datasets[0].data = res.monthlyData;
+            updateSalesAmount(res.salesAmount);
+            updateDailyData(res.dailyData)
+            updateMonthlyData(newData);
+            updateSalesCount(res.salesCount);
         }).catch((err)=>{
             console.log(err);
         });
@@ -233,56 +240,70 @@ function Dashboard(props) {
 
     return (
         <Box mt={2}>
-            <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                    <Card className={classes.card}>
-                        <CardContent>
-                            <Typography className={classes.num_count}>{salesAmount?.totalAmountToday}</Typography>
-                            <Typography className={classes.card_bottom_text}>Total Users</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                    <Card className={classes.card}>
-                        <CardContent>
-                            <Typography className={classes.num_count}>{salesAmount?.totalAmountCurrentMonth}</Typography>
-                            <Typography className={classes.card_bottom_text}>Total Users</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                    <Card className={classes.card}>
-                        <CardContent>
-                            <Typography className={classes.num_count}>{salesAmount?.totalAmountCurrentYear}</Typography>
-                            <Typography className={classes.card_bottom_text}>Active Devices</Typography>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
-            <Box mt={2}>
-                <Grid item xs={12} sm={12}>
-                    <Card className={classes.card}>
-                        <CardContent>
-                        {
-                            data != null &&
-                            <Line options={options} data={data} />
-                        }
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Box mt={2}>
-                    <Grid item xs={12} sm={12}>
+            {
+                dailyData != null ?
+                <>
+                    <Grid container spacing={2}>
+                    <Grid item xs={12} sm={4}>
                         <Card className={classes.card}>
                             <CardContent>
-                            {
-                                dailyData != null &&
-                                <Line options={optionsdaily} data={dailyData} />
-                            }
+                                <Typography className={classes.num_count}>{salesAmount?.totalAmountToday}</Typography>
+                                <Typography className={classes.card_bottom_text}>Today</Typography>
+                                <Typography style={{fontSize:15,textAlign:'center'}}>( {dayName} )</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Card className={classes.card}>
+                            <CardContent>
+                                <Typography className={classes.num_count}>{salesAmount?.totalAmountCurrentMonth}</Typography>
+                                <Typography className={classes.card_bottom_text}>This Month</Typography>
+                                <Typography style={{fontSize:15,textAlign:'center'}}>( {monthName} )</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <Card className={classes.card}>
+                            <CardContent>
+                                <Typography className={classes.num_count}>{salesAmount?.totalAmountCurrentYear}</Typography>
+                                <Typography className={classes.card_bottom_text}>This Year</Typography>
+                                <Typography style={{fontSize:15,textAlign:'center'}}>( {currYear} )</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+                <Box mt={2}>
+                    <Grid item xs={12} sm={12}>
+                        {
+                            dailyData != null &&
+                            <Card className={classes.card}>
+                                <CardContent>
+                                    <Line options={optionsdaily} data={dailyData} />
+                                </CardContent>
+                            </Card>
+                        }
+                    </Grid>
+                    <Box mt={2}>
+                        <Grid item xs={12} sm={12}>
+                            {
+                                monthlyData != null && 
+                                <Card className={classes.card}>
+                                    <CardContent>
+                                        <Line options={options} data={monthlyData} />
+                                    </CardContent>
+                                </Card>
+                            }
+                        </Grid>
+                    </Box>
                 </Box>
-            </Box>
+                </>:
+                <Box style={{display:'flex',alignItems:'center',justifyContent:'center',position:'absolute',top:0,bottom:0,left:245,right:0}}>
+                    <Box style={{flexDirection:'column',alignItems:'center',justifyContent:'center',display:'flex'}}>
+                        <div className='loader'></div>
+                        <span style={{marginTop:20}}>Calculating your statistics, please wait...</span>
+                    </Box>
+                </Box>
+            }
         </Box>
     );
 }

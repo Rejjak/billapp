@@ -22,7 +22,7 @@ module.exports = (mainWindow,iconPath)=> {
             type:'info',
             title:'Binamate',
             message:'Update Downloaded',
-            detail:'One update has been downloaded. Restart the application to apply the changes.',
+            detail:'Update has been downloaded. Restart the application to apply the changes.',
             buttons:['Restart','Later'],
             icon:iconPath,
             noLink:true

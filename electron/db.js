@@ -1,4 +1,4 @@
-const { ipcMain, dialog, app, BrowserWindow } = require('electron');
+const { app } = require('electron');
 const path = require('path');
 const userAppDataDir = app.getPath('userData');
 const dbFilePath = path.join(userAppDataDir,'db.sqlite');
@@ -15,7 +15,6 @@ const knex = require('knex')({
   useNullAsDefault: true
 })
 
-// Create a table in the database called "products"
 knex.schema.hasTable('products').then((exists) => {
     if (!exists) {
         return knex.schema.createTable('products', (table)  => {
@@ -44,7 +43,6 @@ knex.schema.hasTable('products').then((exists) => {
     console.error(`There was an error setting up the database: ${error}`)
 })
 
-// Create a table in the database called "brands"
 knex.schema.hasTable('brands').then((exists) => {
   if (!exists) {
       return knex.schema.createTable('brands', (table)  => {
@@ -54,7 +52,6 @@ knex.schema.hasTable('brands').then((exists) => {
         table.integer('added_on')
       })
       .then(() => {
-          // Log success message
           console.log('Table \'brands\' created')
       })
       .catch((error) => {
@@ -62,13 +59,11 @@ knex.schema.hasTable('brands').then((exists) => {
       })
   }
 }).then(() => {
-  // Log success message
   console.log('done brands')
 }).catch((error) => {
   console.error(`There was an error setting up the database: ${error}`)
 })
 
-// Create a table in the database called "prd_types"
 knex.schema.hasTable('prd_types').then((exists) => {
   if (!exists) {
       return knex.schema.createTable('prd_types', (table)  => {
@@ -78,7 +73,6 @@ knex.schema.hasTable('prd_types').then((exists) => {
         table.integer('added_on')
       })
       .then(() => {
-          // Log success message
           console.log('Table \'prd_types\' created')
       })
       .catch((error) => {
@@ -86,13 +80,11 @@ knex.schema.hasTable('prd_types').then((exists) => {
       })
   }
 }).then(() => {
-  // Log success message
   console.log('done prd_types')
 }).catch((error) => {
   console.error(`There was an error setting up the database: ${error}`)
 })
 
-// Create a table in the database called "sales_history"
 knex.schema.hasTable('sales_history').then((exists) => {
   if (!exists) {
       return knex.schema.createTable('sales_history', (table)  => {
@@ -126,7 +118,6 @@ knex.schema.hasTable('sales_history').then((exists) => {
   console.error(`There was an error setting up the database: ${error}`)
 })
 
-// Create a table in the database called "prd_types"
 knex.schema.hasTable('app_setting').then((exists) => {
   if (!exists) {
       return knex.schema.createTable('app_setting', (table)  => {
@@ -143,6 +134,7 @@ knex.schema.hasTable('app_setting').then((exists) => {
         table.integer('own_status')
         table.string('password')
         table.string('pass_hint')
+        table.integer('pass_created')
         table.integer('inv_default_no')
         table.integer('inv_watermark')
         table.integer('inv_footer_pos')
@@ -155,7 +147,6 @@ knex.schema.hasTable('app_setting').then((exists) => {
         table.integer('app_activate_time')
       })
       .then(() => {
-          // Log success message
           console.log('Table \'app_setting\' created')
           knex('app_setting').insert({
             com_name : '',
@@ -170,6 +161,7 @@ knex.schema.hasTable('app_setting').then((exists) => {
             own_status:0,
             password:'12345',
             pass_hint:'12345',
+            pass_created:0,
             inv_default_no:100,
             inv_watermark:1,
             inv_footer_pos:1,
@@ -191,8 +183,10 @@ knex.schema.hasTable('app_setting').then((exists) => {
       })
   }
 }).then(() => {
-  // Log success message
   console.log('done app_setting')
+  // table modified code, use this way if needed
+  // to add new coulmn use table.integer('pass_created')
+  // to modify the data type use tablee.integer('pass_created').alter()
 }).catch((error) => {
   console.error(`There was an error setting up the database: ${error}`)
 })

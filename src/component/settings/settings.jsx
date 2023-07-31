@@ -4,7 +4,6 @@ import BpCheckbox from './checkbox';
 import BpRadiobox from './radiobox';
 import commonStyles from '../style/commonStyle';
 import UploadBtn from './uploadBtn';
-import CloudLoader from '../common/loader/cloudLoader';
 import BackupBtn from './backupBtn';
 import ToastErr from '../common/toastErr';
 import ToastBar from '../common/toastbar';
@@ -237,6 +236,8 @@ const Settings = ()=> {
                 wp_no : appSettings.own_wp
             }
         }
+        console.log(payload);
+        
         FireStoreService.newCustomer(payload).then((res)=>{
             if(res.status){
                 activeApp(macAdd);
@@ -269,7 +270,7 @@ const Settings = ()=> {
         });
     }
 
-    const handleClose = (event, reason) => {
+    const handleClose = React.useCallback((event, reason) => {
         if (reason === 'clickaway') {
           return;
         }
@@ -279,7 +280,7 @@ const Settings = ()=> {
         if(successToast != ''){
             setSuccessToast('');
         }
-    }
+    },[])
 
     const getDbPercentage = (db_size)=> {
         let used = db_size;
@@ -411,7 +412,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text_app}>App Version</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Updated version fo the application.</Typography>
+                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Updated version of the application.</Typography>
                             <Box mt={5.9}>
                                 <Typography className={classes.appVer} variant={'h5'}>{'0.'+pkg.version}</Typography>
                             </Box>
@@ -422,7 +423,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text_app}>Storage</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Total storage used by the application.</Typography>
+                            <Typography style={{marginTop:5}} variant={'subtitle2'}>The total storage used by the application.</Typography>
                             <Box mt={5.5}>
                                 <Typography style={{fontSize:11,fontWeight:'bold'}} variant={'subtitle2'}>{dbSize} GB of 240 GB</Typography>
                                 <LinearProgress className={classes.progressBar} variant="determinate" value={getDbPercentage(dbSize)}/>
@@ -437,19 +438,19 @@ const Settings = ()=> {
                         <CardContent>
                             <form onSubmit={formikCom.handleSubmit}>
                                 <Typography className={classes.card_title_text}>Company Details</Typography>
-                                <Typography style={{marginTop:5}} variant={'subtitle2'}>These all informations are mandatory to complete invoice setup.</Typography>
+                                <Typography style={{marginTop:5}} variant={'subtitle2'}>All of this information is mandatory to complete the invoice setup.</Typography>
                                 
                                 <Box mt={2}>
-                                    <TextField defaultValue={appSettings.com_name} fullWidth name={'com_name'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_name)} color={'secondary'} label="Shop name" variant={'standard'} />
+                                    <TextField defaultValue={appSettings.com_name} fullWidth name={'com_name'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_name)} color={'secondary'} label="Shop name" variant={'standard'} inputProps={{maxLength:40}} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField defaultValue={appSettings.com_add_one} fullWidth name={'com_add_one'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_one)} color={'secondary'} label="Address1" variant={'standard'} />
+                                    <TextField defaultValue={appSettings.com_add_one} fullWidth name={'com_add_one'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_one)} color={'secondary'} label="Address1" variant={'standard'} inputProps={{maxLength:40}} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField defaultValue={appSettings.com_add_two} fullWidth name={'com_add_two'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_two)} color={'secondary'} label="Address2" variant={'standard'} />
+                                    <TextField defaultValue={appSettings.com_add_two} fullWidth name={'com_add_two'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_two)} color={'secondary'} label="Address2" variant={'standard'} inputProps={{maxLength:40}} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField defaultValue={appSettings.com_add_three} fullWidth name={'com_add_three'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_three)} color={'secondary'} label="Address3" variant={'standard'} />
+                                    <TextField defaultValue={appSettings.com_add_three} fullWidth name={'com_add_three'} onChange={formikCom.handleChange} error={formikCom.touched.com_name && Boolean(formikCom.errors.com_add_three)} color={'secondary'} label="Address3" variant={'standard'} inputProps={{maxLength:40}} />
                                 </Box>
                                 <Box mt={2}>
                                     <Grid container style={{justifyContent:'flex-end'}}>
@@ -465,7 +466,7 @@ const Settings = ()=> {
                         <CardContent>
                             <form onSubmit={formikOwn.handleSubmit}>
                                 <Typography className={classes.card_title_text}>Owner Details</Typography>
-                                <Typography style={{marginTop:5}} variant={'subtitle2'}>These all informations are mandatory to complete invoice setup except dp.</Typography>
+                                <Typography style={{marginTop:5}} variant={'subtitle2'}>All of this information is mandatory to complete the invoice setup, except DP.</Typography>
                                 <Box>
                                     <Grid container justifyContent={'center'}>
                                         <UploadBtn
@@ -475,13 +476,13 @@ const Settings = ()=> {
                                     </Grid>
                                 </Box>
                                 <Box>
-                                    <TextField fullWidth name={'own_name'} defaultValue={appSettings.own_name} onChange={formikOwn.handleChange} error={formikOwn.touched.own_name && Boolean(formikOwn.errors.own_name)} color={'secondary'} label="Owner name" variant={'standard'} />
+                                    <TextField fullWidth name={'own_name'} defaultValue={appSettings.own_name} onChange={formikOwn.handleChange} error={formikOwn.touched.own_name && Boolean(formikOwn.errors.own_name)} color={'secondary'} label="Owner name" variant={'standard'} inputProps={{maxLength:20}} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField fullWidth name={'own_email'} defaultValue={appSettings.own_email} onChange={formikOwn.handleChange} error={formikOwn.touched.own_email && Boolean(formikOwn.errors.own_email)} color={'secondary'} label="Email" variant={'standard'} />
+                                    <TextField fullWidth name={'own_email'} defaultValue={appSettings.own_email} onChange={formikOwn.handleChange} error={formikOwn.touched.own_email && Boolean(formikOwn.errors.own_email)} color={'secondary'} label="Email" variant={'standard'} inputProps={{maxLength:30}} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField fullWidth name={'own_wp'} defaultValue={appSettings.own_wp} onChange={formikOwn.handleChange} error={formikOwn.touched.own_wp && Boolean(formikOwn.errors.own_wp)} color={'secondary'} label="WhatsApp" variant={'standard'} />
+                                    <TextField fullWidth name={'own_wp'} defaultValue={appSettings.own_wp} onChange={formikOwn.handleChange} error={formikOwn.touched.own_wp && Boolean(formikOwn.errors.own_wp)} color={'secondary'} label="WhatsApp" variant={'standard'} inputProps={{maxLength:10}} />
                                 </Box>
                                 <Box mt={2}>
                                     <Grid container style={{justifyContent:'flex-end'}}>
@@ -497,12 +498,12 @@ const Settings = ()=> {
                         <CardContent>
                             <form onSubmit={formikPass.handleSubmit}>
                                 <Typography className={classes.card_title_text}>Change Password</Typography>
-                                <Typography style={{marginTop:5}} variant={'subtitle2'}>Please provide some unique password with at least 5 characters of lenght.</Typography>
+                                <Typography style={{marginTop:5}} variant={'subtitle2'}>Please provide a unique password that is at least 5 characters in length.</Typography>
                                 <Box mt={2}>
-                                    <TextField type={'password'} fullWidth name={'old_pass'} onChange={formikPass.handleChange} error={formikPass.touched.old_pass || Boolean(formikPass.errors.old_pass)} color={'secondary'} label="Old password" variant={'standard'} />
+                                    <TextField type={'password'} fullWidth name={'old_pass'} onChange={formikPass.handleChange} error={formikPass.touched.old_pass || Boolean(formikPass.errors.old_pass)} color={'secondary'} label="Current password" variant={'standard'} />
                                 </Box>
                                 <Box mt={2}>
-                                    <TextField type={'password'} fullWidth name={'new_pass'} onChange={formikPass.handleChange} error={formikPass.touched.new_pass && Boolean(formikPass.errors.new_pass)} color={'secondary'} label="New passowrd" variant={'standard'} />
+                                    <TextField type={'password'} fullWidth name={'new_pass'} onChange={formikPass.handleChange} error={formikPass.touched.new_pass && Boolean(formikPass.errors.new_pass)} color={'secondary'} label="New password" variant={'standard'} />
                                 </Box>
                                 <Box mt={2}>
                                     <TextField type={'password'} fullWidth name={'con_pass'} onChange={formikPass.handleChange} error={formikPass.touched.con_pass && Boolean(formikPass.errors.con_pass)} color={'secondary'} label="Confirm password" variant={'standard'} />
@@ -525,19 +526,18 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text}>Invoice Settings</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>These all informations are mandatory to complete your invoice setup.</Typography>
-                            <Box mt={6}>
+                            <Box mt={5}>
                                 <FormControlLabel
                                     control={
                                         <BpCheckbox checked={appSettings.inv_watermark === 1 ? true : false} onChange={(v)=>checkBoxUpdate(v.target.checked,'inv_watermark')} name="watermark" />
                                     }
-                                    label="Enable watermark"
+                                    label="Watermark"
                                 />
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>Enable watermark with your name in the invoice background.</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>The watermark will be applied by enabling it with your name in the background of the invoice.</Typography>
                             </Box>
-                            <Box mt={4}>
-                                <Typography variant={'subtitle1'}>Footer Bar</Typography>
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>Deafult position is fixed, you can check other options as well.</Typography>
+                            <Box mt={4.77}>
+                                <Typography variant={'subtitle1'}>Bottom banner</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>The default position is fixed, but you can also explore other options.</Typography>
                                 <RadioGroup
                                     value={appSettings.inv_footer_pos?.toString()}
                                     aria-labelledby="demo-customized-radioss"
@@ -558,19 +558,18 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text}>Product Settings</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>These all informations are optional</Typography>
-                            <Box mt={7}>
+                            <Box mt={5}>
                                 <FormControlLabel
                                     control={
                                         <BpCheckbox checked={appSettings.cust_type === 2 ? true : false } onChange={(v)=>customerUpdate(v.target.checked,'cust_type')} name="jason" />
                                     }
                                     label="Special price"
                                 />
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this can be set two types of price, e.g normal and special price.</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this feature, two types of prices can be set in every product: normal price and special price.</Typography>
                             </Box>
-                            <Box mt={5.74}>
-                                <Typography variant={'subtitle1'}>Product Display</Typography>
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>Choose one to display your product with the following options</Typography>
+                            <Box mt={4.8}>
+                                <Typography variant={'subtitle1'}>Product view</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>There are two types of views available to display the products.</Typography>
                                 <RadioGroup
                                 value={appSettings.prd_list?.toString()}
                                 aria-labelledby="demo-customized-radioss"
@@ -587,25 +586,27 @@ const Settings = ()=> {
                 <Grid item xs={12} sm={4}>
                     <Card className={classes.card}>
                         <CardContent>
-                            <Typography className={classes.card_title_text}>Bag Settings</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>These all informations are optional.</Typography>
-                            <Box mt={8}>
+                            <Typography className={classes.card_title_text}>Cart Settings</Typography>
+                            <Box mt={5}>
+                                <Typography variant={'subtitle2'}>Enabling the following options will allow you to apply values for "Discount" and "Tax" in your cart.</Typography>
+                            </Box>
+                            <Box mt={2}>
                                 <FormControlLabel
                                     control={
                                         <BpCheckbox checked={appSettings.bag_discount === 1 ? true : false} onChange={(v)=>checkBoxUpdate(v.target.checked,'bag_discount')}  name="discount" />
                                     }
-                                    label="Enable discount"
+                                    label="Discount"
                                 />
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this, the "Discount" option will be display in your bag</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this feature, the "Discount" option will be applied in your cart.</Typography>
                             </Box>
-                            <Box mt={8.24}>
+                            <Box mt={0.8}>
                                 <FormControlLabel
                                     control={
                                         <BpCheckbox checked={appSettings.bag_tax === 1 ? true : false} onChange={(v)=>checkBoxUpdate(v.target.checked,'bag_tax')} name="tax" />
                                     }
-                                    label="Enable tax"
+                                    label="Tax(GST)"
                                 />
-                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this, the "Tax" option will be display in your bag</Typography>
+                                <Typography style={{marginTop:3}} variant={'subtitle2'}>By enabling this feature, the "Tax" option will be applied in your cart.</Typography>
                             </Box>
                         </CardContent>
                     </Card>
@@ -616,7 +617,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text}>Theme Settings</Typography>
-                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Select your theme as per your choice.</Typography>
+                            <Typography style={{marginTop:5}} variant={'subtitle2'}>Select according to your preference.</Typography>
                             <Box mt={1.5}>
                                 <RadioGroup
                                     value={mode == 'light' ? lightTheme : 'dark'}
@@ -671,7 +672,7 @@ const Settings = ()=> {
                     <Card className={classes.card}>
                         <CardContent>
                             <Typography className={classes.card_title_text}>Backup</Typography>
-                                <Typography style={{marginTop:5}} variant={'subtitle2'}>{'Export / import of your database.'}</Typography>
+                                <Typography style={{marginTop:5}} variant={'subtitle2'}>{'Exporting/importing your database.'}</Typography>
                                 <Box mt={2.7}>
                                     <Grid container justifyContent={'center'}>
                                         <BackupBtn

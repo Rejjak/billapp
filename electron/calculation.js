@@ -1,4 +1,4 @@
-export const getSalesAmount = (data, date_by = null) => {
+exports.getSalesAmount = (data, date_by = null) => {
     const currentDate = date_by != null ? new Date(date_by) : new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
@@ -33,7 +33,7 @@ export const getSalesAmount = (data, date_by = null) => {
     }
 }
 
-export const getMonthlyData = (jsonData) => {
+exports.getMonthlyData = (jsonData) => {
     const data = jsonData;
     const monthlyTotals = {};
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -64,13 +64,11 @@ export const getMonthlyData = (jsonData) => {
     return chartData;
 }
 
-export const formatDailyChartData = (data) => {
+exports.formatDailyChartData = (data) => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
     const currentDay = currentDate.getDate();
-
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     const chartData = {};
 

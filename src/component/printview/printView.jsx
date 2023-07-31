@@ -6,14 +6,23 @@ import ReactToPrint,{useReactToPrint} from 'react-to-print';
 import {useParams} from 'react-router-dom';
 import RequestService from '../../service/requestService';
 import {ColorModeContext} from '../../store';
-
 const PrintView = ()=> {
-    const {licenceData} = useContext(ColorModeContext);
+    const {licenceData,salesCount,defaultAccessLimit} = useContext(ColorModeContext);
     const componentRef = useRef();
+    const btnRef = useRef(null);
     const classes = commonStyles();
     const params = useParams();
     const [invData,setInvData] = useState(null);
     
+    const handleKeyPress = (event) => {
+        if(event.key === 'Enter'){
+            document.removeEventListener('keydown', handleKeyPress);
+            if(btnRef.current != null){
+                btnRef.current.click();
+            }
+        }
+    }; 
+
     const getInvoice = ()=> {
         let payload = {
             req_url : 'sales-get',
@@ -30,14 +39,20 @@ const PrintView = ()=> {
 
     useEffect(()=>{
         getInvoice();
+
+        document.addEventListener('keydown', handleKeyPress);
+        return () => {
+            document.removeEventListener('keydown', handleKeyPress);
+        };
+
     },[]);
 
-    const showAlert = async(msg)=> {
+    const showAlert = async()=> {
         let payload = {
             req_url : 'show-alert',
             data : {
-                title : 'Application not activated',
-                msg:msg
+                title : licenceData.alertMsg.title,
+                msg:licenceData.alertMsg.message
             }
         }
         await RequestService.addRequest(payload)
@@ -54,13 +69,13 @@ const PrintView = ()=> {
                             licenceData != null &&
                             <>
                             {
-                                !licenceData.showAlert ?
+                                (!licenceData.showAlert || salesCount < defaultAccessLimit) ?
                                 <ReactToPrint
                                 documentTitle={'bill_'+params.inv_id}
-                                trigger={() => <Button className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>}
+                                trigger={() => <Button ref={btnRef} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>}
                                 content={() => componentRef.current}
                                 />:
-                                <Button onClick={()=>showAlert(licenceData.alertMsg.message)} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>
+                                <Button onClick={()=>showAlert()} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>
                             }
                             </>
                         }

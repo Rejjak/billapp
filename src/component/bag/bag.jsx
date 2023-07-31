@@ -1,17 +1,11 @@
-import React, { useState, useCallback, useEffect,memo,useContext,useRef } from 'react';
-import {Box,Grid, Typography, TableContainer,Table,TableBody,TableCell,TableHead,TableRow, Paper, IconButton, TextField, Button, Tooltip, makeStyles, Card, CardContent,Select,MenuItem,InputLabel} from '@material-ui/core';
-import {Autocomplete} from '@material-ui/lab';
-import {Edit, Visibility, Add, Cancel,More,Shop,ClearAll,Delete,Info,Cached,MoreVert,Clear} from '@material-ui/icons';
+import React, { useState, useCallback, useEffect,useContext } from 'react';
+import {Box,Grid, Typography, TableContainer,Table,TableBody,TableCell,TableHead,TableRow, Paper, IconButton, TextField, Button, Tooltip,Select,MenuItem} from '@material-ui/core';
+import {Add,Shop,Delete,Cached,MoreVert,Clear} from '@material-ui/icons';
 import {ColorModeContext} from '../../store';
 import { useNavigate } from "react-router-dom";
-//import ReactToPrint from 'react-to-print';
-//import PrintComponent from './printPage';
-import ActionButtons from '../brand/actionButtons';
 import default_img from '../brand/default_image.png';
 import ToastErr from '../common/toastErr';
 import AppModal from '../common/modal';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
 import RequestService from '../../service/requestService';
 import commonStyles from '../style/commonStyle';
 
@@ -84,17 +78,17 @@ const BlankRow = ({title,children,isLast})=> {
 function Bag(props) {
     const navigate = useNavigate();
     const classes = commonStyles();
-    const {cartData,updateCart,bagExtraData,updateBagExtraData,defaultBagData,typeData,brandData,productData,settingsData} = useContext(ColorModeContext);
+    const {cartData,updateCart,bagExtraData,updateBagExtraData,defaultBagData,typeData,brandData,productData,settingsData,licenceData,salesCount,defaultAccessLimit} = useContext(ColorModeContext);
     const [showViewModal, setViewModal] = useState(false);
     const [eleData, setEleData] = useState({});
     const [showToast,setToast] = useState('');
     const [showAlert,setAlert] = useState(false);
     const appSettings = settingsData[0];
-    const componentRef = useRef();
 
     useEffect(()=>{
         console.log(cartData);
     },[])
+
     const handleChange = (event) => {
         /**
          * As this system have two types of
@@ -277,7 +271,13 @@ function Bag(props) {
                 setToast('Error : Invalid items');
                 return false;
             }
-            setAlert(true);
+            
+            if(licenceData != null && licenceData.showAlert && salesCount > defaultAccessLimit){
+                showLicenceAlert();
+            }else{
+                setAlert(true);
+            }
+
         }else{
             setToast('Error : Please check customer details');
         }
@@ -304,15 +304,26 @@ function Bag(props) {
         });
     }
 
-    const handleClose = (event, reason) => {
+    const handleClose = React.useCallback((event, reason) => {
         if (reason === 'clickaway') {
           return;
         }
         setToast('');
-    }
+    },[]);
 
     const navigateTo = (id)=> {
         navigate(`/print/${id}`);
+    }
+
+    const showLicenceAlert = async()=> {
+        let payload = {
+            req_url : 'show-alert',
+            data : {
+                title : licenceData?.alertMsg.title,
+                msg:licenceData?.alertMsg.message
+            }
+        }
+        await RequestService.addRequest(payload)
     }
 
     return (
@@ -407,7 +418,7 @@ function Bag(props) {
             }
             handleClose={()=>displayViewModal(false)}
             visible={showViewModal}/>
-            <Typography style={{fontFamily:'Roboto-Medium'}} variant={'h6'}>My Bag</Typography>
+            <Typography style={{fontFamily:'Roboto-Medium'}} variant={'h6'}>Cart(Items for sale)</Typography>
             <Grid container style={{justifyContent:'space-between',alignItems:'center',marginTop:20}}>
                 <Grid item xs={12} sm={2}>
                     <Button onClick={()=>addMore()} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold'}} startIcon={<Add/>}>Add New</Button>
@@ -432,13 +443,13 @@ function Bag(props) {
                     </Grid>
                 }
                 <Grid item xs={12} sm={2}>
-                    <TextField onChange={(e)=>onTextChangeCustomerData(e,'biller_name')} value={bagExtraData.biller_name} size='small' placeholder={'Name'} color={'secondary'} fullWidth inputProps={{ maxLength:18 }} />
+                    <TextField onChange={(e)=>onTextChangeCustomerData(e,'biller_name')} value={bagExtraData.biller_name} size='small' placeholder={'Name'} color={'secondary'} fullWidth inputProps={{ maxLength:20 }} />
                 </Grid>
                 <Grid item xs={12} sm={2}>
                     <TextField  onChange={(e)=>onTextChangeCustomerData(e,'biller_phone')} onKeyPress={(e)=>onlyNumber(e)} value={bagExtraData.biller_phone} size='small' placeholder={'Phone'} color={'secondary'} fullWidth inputProps={{ inputMode: 'numeric', pattern: '[0-9]*',maxLength:10 }} />
                 </Grid>
                 <Grid item xs={12} sm={2}>
-                    <TextField onChange={(e)=>onTextChangeCustomerData(e,'biller_add')} value={bagExtraData.biller_add} size='small' placeholder={'Address'} color={'secondary'} fullWidth inputProps={{ maxLength:100 }} />
+                    <TextField onChange={(e)=>onTextChangeCustomerData(e,'biller_add')} value={bagExtraData.biller_add} size='small' placeholder={'Address'} color={'secondary'} fullWidth inputProps={{ maxLength:60 }} />
                 </Grid>
             </Grid>
             <TableContainer style={{marginTop:20}} className={classes.paperBg} component={Paper}>
@@ -542,15 +553,6 @@ function Bag(props) {
                 <Tooltip title={bagExtraData.cust_rate == 2 ? 'Go with special price' : ''}>
                     <Button onClick={()=>doCheckout()} className={bagExtraData.cust_rate == 2 ? classes.redBtn : classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}} startIcon={<Shop/>}>Checkout</Button>
                 </Tooltip>
-                {/* <div>
-                    <ReactToPrint
-                        trigger={() => <Button className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold',marginLeft:10}}>Print this out!</Button>}
-                        content={() => componentRef.current}
-                    />
-                    <div style={{display:'none'}}>
-                        <PrintComponent ref={componentRef} />
-                    </div>
-                    </div> */}
             </Grid> 
         </Box>
     );

@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import RequestService from '../../service/requestService';
 
 const validationSchema = yup.object({
-    typeName: yup.string('Product type').required('Product type is required')
+    typeName: yup.string('Product category').required('Product category is required')
 });
 
 function Category(props) {
@@ -103,10 +103,10 @@ function Category(props) {
     return (
         <Box mt={2}>
             <AppModal
-            title={editOption != null ? editOption.label : 'Add Type'}
+            title={editOption != null ? editOption.label : 'Add Category'}
             width={300}
             children={
-                <form>
+                <form onSubmit={formik.handleSubmit}>
                     <Box mt={1}>
                         <Grid container justifyContent={'center'}>
                             <UploadButtons
@@ -119,7 +119,7 @@ function Category(props) {
                         defaultValue={editOption != null ? editOption.name : ''}
                         onChange={formik.handleChange}
                         error={formik.touched.typeName && Boolean(formik.errors.typeName)}
-                        color={'secondary'} label="Product Name" variant={'standard'} fullWidth inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                        color={'secondary'} label="Category name" variant={'standard'} fullWidth />
                     </Box>
                 </form>    
             }
@@ -140,7 +140,7 @@ function Category(props) {
                             sx={{height: 106,width: '100%'}}>
                                 <AddBox className={classes.iconAddColor} style={{fontSize:100}}/>
                             </Box>        
-                            <Typography className={classes.card_bottom_text}>Add Type</Typography>
+                            <Typography className={classes.card_bottom_text}>Add Category</Typography>
                         </CardContent>
                     </Card>
                 </Grid>
@@ -150,7 +150,7 @@ function Category(props) {
                             <Grid key={i} item xs={12} sm={2}>
                                 <Card className={classes.card}>
                                     <ActionButtons
-                                    onEdit={()=>openEditModal({...ele,...{label:'Update Type'}})}
+                                    onEdit={()=>openEditModal({...ele,...{label:'Update Category'}})}
                                     onDelete={()=>deleteType(ele.id)}
                                     />
                                     <CardContent style={{padding:12}}>
@@ -183,7 +183,7 @@ const Styles = makeStyles((theme)=>({
         color:'#3399FF'
     },
     card_bottom_text : {
-        fontSize : '14px',
+        fontSize : '13px',
         marginTop: '10px',
         textAlign:'center',
         ...(theme.palette.type === 'dark') ? {

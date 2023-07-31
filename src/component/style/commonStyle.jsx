@@ -176,6 +176,15 @@ const commonStyles = makeStyles((theme)=>({
             }
         }
     },
+    loadingMore: {
+        display:'flex',
+        width:'100%',
+        alignItems:'center',
+        justifyContent:'center',
+        paddingTop:'8px',
+        paddingBottom:'8px',
+        borderColor:theme.palette.type === 'dark' ? "rgba(81, 81, 81, 1)" : "rgba(224, 224, 224, 1)"
+    },
     iconAddColor:{
         ...(theme.palette.type === 'dark') ? {
             color : '#99CCF3'

@@ -9,7 +9,7 @@ function BadgeIcon(){
     const {mode,cartData} = useContext(ColorModeContext);
     return (
         <Box>
-            <Tooltip title={'My bag'}>
+            <Tooltip title={'Cart'}>
                 <NavLink to={'/bag'}>
                     <IconButton
                     color={'inherit'}>

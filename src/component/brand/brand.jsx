@@ -20,7 +20,6 @@ function Brand() {
     const [showAddModal, setAddModal] = useState(false);
     const [editOption, setEditOption] = useState(null);
     const [imageUrl, setImageUrl] = useState('');
-    const [isLoaded,setLoaded] = useState(false);
 
     useEffect(()=>{
         getBrand();
@@ -42,7 +41,6 @@ function Brand() {
 
     const updateBrandData = useCallback((value)=>{
         updateBrand(value);
-        setLoaded(true);
     },[])
 
     const formik = useFormik({
@@ -108,7 +106,7 @@ function Brand() {
             title={editOption != null ? editOption.label : 'Add Brand'}
             width={300}
             children={
-                <form>
+                <form onSubmit={formik.handleSubmit}>
                     <Box mt={1}>
                         <Grid container justifyContent={'center'}>
                             <UploadButtons
@@ -121,7 +119,7 @@ function Brand() {
                         defaultValue={editOption != null ? editOption.name : ''}
                         onChange={formik.handleChange}
                         error={formik.touched.brandName && Boolean(formik.errors.brandName)}
-                        color={'secondary'} label="Product Name" variant={'standard'} fullWidth inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                        color={'secondary'} label="Brand name" variant={'standard'} fullWidth />
                     </Box>
                 </form>    
             }
@@ -132,23 +130,20 @@ function Brand() {
             handleSubmit={()=>formik.handleSubmit()}
             visible={showAddModal}/>
             <Grid container spacing={2}>
-                {
-                    isLoaded && 
-                    <Grid item xs={12} sm={2}>
-                        <Card className={classes.cardAdd}>
-                            <CardContent style={{padding:12}} onClick={()=>addModal(true)}>
-                                <Box 
-                                display="flex"
-                                justifyContent="center"
-                                alignItems="center"
-                                sx={{height: 106,width: '100%'}}>
-                                    <AddBox className={classes.iconAddColor} style={{fontSize:100}}/>
-                                </Box>        
-                                <Typography className={classes.card_bottom_text}>Add Brand</Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                }
+                <Grid item xs={12} sm={2}>
+                    <Card className={classes.cardAdd}>
+                        <CardContent style={{padding:12}} onClick={()=>addModal(true)}>
+                            <Box 
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            sx={{height: 106,width: '100%'}}>
+                                <AddBox className={classes.iconAddColor} style={{fontSize:100}}/>
+                            </Box>        
+                            <Typography className={classes.card_bottom_text}>Add Brand</Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
                 {
                     brandData.map((ele,i)=>{
                         return (

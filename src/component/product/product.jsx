@@ -1,15 +1,15 @@
 import React, { useState, useCallback, useEffect,memo,useContext } from 'react';
 import {Box,Grid, Typography, TableContainer,Table,TableBody,TableCell,TableHead,TableRow, Paper, IconButton, TextField, Button, Tooltip, makeStyles, Card, CardContent} from '@material-ui/core';
 import {Autocomplete} from '@material-ui/lab';
-import {Edit, Delete, Add, ShoppingBasket, Error} from '@material-ui/icons';
+import {Edit, Delete, Add, ShoppingBasket, Close} from '@material-ui/icons';
 import ActionButtons from '../brand/actionButtons';
 import default_img from '../brand/default_image.png';
 import AppModal from '../common/modal';
 import ToastBar from '../common/toastbar';
+import ToastErr from '../common/toastErr';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import RequestService from '../../service/requestService';
-import EnhancedTable from './mytable';
 import commonStyles from '../style/commonStyle';
 import {ColorModeContext} from '../../store';
 
@@ -27,7 +27,7 @@ function onlyNumber(evt) {
     return true;
 }
 
-const ActionBtn = ({onDelete,onEdit,onBag}) => {
+const ActionBtn = ({onDelete,onEdit,onBag,isAdded}) => {
     const classes = commonStyles();
     return (
         <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',padding:0}}>
@@ -41,9 +41,13 @@ const ActionBtn = ({onDelete,onEdit,onBag}) => {
                     <Delete className={classes.iconAddColor}/>
                 </IconButton>
             </Tooltip>
-            <Tooltip title={'Add to bag'}>
+            <Tooltip title={isAdded ? 'Remove' : 'Add to bag'}>
                 <IconButton onClick={onBag} size={'small'}>
-                    <ShoppingBasket className={classes.iconAddColor}/>
+                    {
+                        isAdded ?
+                        <Close className={classes.iconAddColor}/>:
+                        <ShoppingBasket className={classes.iconAddColor}/>
+                    }
                 </IconButton>
             </Tooltip>
         </div>
@@ -61,8 +65,8 @@ function Product(props) {
     const [prdId, setPrdId] = useState(null);
     const [searchTxt,setSearchTxt] = useState('');
     const [editData, setEditData] = useState(null);
-    const [showGridView, setGridView] = useState(false);
     const [showToast,setToast] = useState(false);
+    const [showToastErr,setToastErr] = useState(false);
 
     useEffect(()=>{
         prdTempData = productData;
@@ -140,11 +144,11 @@ function Product(props) {
         onSubmit: (values,{resetForm}) => {
             if((values.prdName != '' || (values.typeName != '' && values.typeName != null)) && values.stock != '' && values.price != ''){
                 if(isNaN(values.price)){
-                    alert('Please check your input and try again!');
+                    setToastErr(true);
                     return false;
                 }
                 if(values.specialPrice != '' && isNaN(values.specialPrice)){
-                    alert('Please check your input and try again!');
+                    setToastErr(true);
                     return false;
                 }
                 values.brandName = values.brandName == null ? '' : values.brandName;
@@ -153,9 +157,8 @@ function Product(props) {
                 resetForm();
                 displayModal(false);
             }else{
-                alert('Please check your input and try again!');
+                setToastErr(true);
             }
-            //alert(JSON.stringify(values))
         }
     });
 
@@ -250,15 +253,28 @@ function Product(props) {
             newCartData.unshift(_ele);
             setToast(true);
             updateCart(newCartData);
+        }else{
+            newCartData.splice(index,1);
+            updateCart(newCartData);
         }
     }
 
-    const handleClose = (event, reason) => {
+    const checkInBag = (ele)=> {
+        let data = cartData.find((cart)=>cart.id == ele.id);
+        if(data != undefined){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    const handleClose = React.useCallback((event, reason) => {
         if (reason === 'clickaway') {
           return;
         }
         setToast(false);
-    }
+        setToastErr(false);
+    },[])
 
     const checkBorder = (arr,i)=> {
         if(i == arr.length -1){
@@ -269,15 +285,15 @@ function Product(props) {
     }
 
     return (
-        // <EnhancedTable/>
         <Box mt={2}>
-            <ToastBar handleClose={handleClose} open={showToast} title={'Item added to the bag'}/>
+            <ToastErr handleClose={handleClose} open={showToastErr} title={'Please check your input and try again!'}/>
+            <ToastBar handleClose={handleClose} open={showToast} title={'Item added to the cart'}/>
             <AppModal 
             title={editData != null ? 'Update product' : 'Add product'}
             children={
                 <div>
                     <Box mt={3}>
-                        <TextField defaultValue={editData != null ? editData.name : ''} name={'prdName'} onChange={formik.handleChange} color={'secondary'} label="Product Name" variant={'standard'} fullWidth inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
+                        <TextField defaultValue={editData != null ? editData.name : ''} name={'prdName'} onChange={formik.handleChange} color={'secondary'} label="Product name" variant={'standard'} fullWidth />
                     </Box>
                     <Box mt={4}>
                         <Grid container style={{justifyContent:'space-between',alignItems:'center'}}>
@@ -293,8 +309,8 @@ function Product(props) {
                                     formik.setFieldValue('typeName',v);
                                 }}
                                 value={editData != null ? editData.type : ''}
-                                options={typeData.map((option) => option.name)}
-                                renderInput={(params) => <TextField {...params} color={'secondary'} label="Type" variant={'standard'} />}
+                                options={typeData.map((option) => String(option.name))}
+                                renderInput={(params) => <TextField {...params} color={'secondary'} label="Category" variant={'standard'} />}
                             />
                             <Autocomplete
                                 style={{width:170}}
@@ -308,7 +324,7 @@ function Product(props) {
                                     formik.setFieldValue('brandName',v);
                                 }}
                                 value={editData != null ? editData.brand : ''}
-                                options={brandData.map((option) => option.name)}
+                                options={brandData.map((option) => String(option.name))}
                                 renderInput={(params) => <TextField {...params} color={'secondary'} label="Brand" variant={'standard'} />}
                             />
                             <TextField defaultValue={editData != null ? editData.model : ''} name={'modelName'} onChange={formik.handleChange} color={'secondary'} label="Model" variant={'standard'} inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }} />
@@ -380,7 +396,7 @@ function Product(props) {
                                     <td>{editData.name}</td>
                                 </tr>
                                 <tr>
-                                    <td>Type </td>
+                                    <td>Category </td>
                                     <td>:</td>
                                     <td>{editData.type}</td>
                                 </tr>
@@ -419,7 +435,7 @@ function Product(props) {
             }
             handleClose={()=>displayViewModal(false)}
             visible={showViewModal}/>
-            <Typography style={{fontFamily:'Roboto-Medium'}} variant={'h6'}>My Product</Typography>
+            <Typography style={{fontFamily:'Roboto-Medium'}} variant={'h6'}>Products</Typography>
             <Grid container style={{justifyContent:'space-between',alignItems:'center',marginTop:20}}>
                 <Grid item xs={12} sm={4}>
                     <Button onClick={()=>displayModal(true)} className={classes.colorBtn} style={{color:'#fff',fontSize:12,fontWeight:'bold'}} startIcon={<Add/>}>Add New</Button>
@@ -441,7 +457,7 @@ function Product(props) {
                                         <Grid key={ele.id} item xs={12} sm={3}>
                                             <Card className={newclasses.card}>
                                                 <ActionButtons onView={()=>displayViewModal(true,ele)} onEdit={()=>displayModal(true,ele)} onDelete={()=>displayDeleteModal(true,ele.id)}/>
-                                                <CardContent style={{padding:12}} onClick={()=>addToBag(ele)}>
+                                                <CardContent style={{padding:12,backgroundColor:checkInBag(ele) ? 'rgba(144, 202, 249, 0.5)' : null}} onClick={()=>addToBag(ele)}>
                                                     <Box style={{flexDirection:'row',justifyContent:'space-around',display:'flex'}}>
                                                         <Box
                                                             component="img"
@@ -484,7 +500,7 @@ function Product(props) {
                                         <TableCell align="center" style={{borderLeft:0}} width={20}>S.No</TableCell>
                                         <TableCell style={{paddingBottom:5,paddingTop:5,paddingLeft:15}}>Product Name</TableCell>
                                         <TableCell align="center">Qty</TableCell>
-                                        <TableCell align="center">Type</TableCell>
+                                        <TableCell align="center">Category</TableCell>
                                         <TableCell align="center">Brand</TableCell>
                                         <TableCell align="center">Model</TableCell>
                                         <TableCell align="center">Price</TableCell>
@@ -499,7 +515,7 @@ function Product(props) {
                                     {
                                         productData.map((ele,i)=>{
                                             return (
-                                                <TableRow key={ele.id}>
+                                                <TableRow style={{backgroundColor:checkInBag(ele)? 'rgba(144, 202, 249, 0.16)':null}} key={ele.id}>
                                                     <TableCell align="center" style={{borderLeft:0,...checkBorder(productData,i)}}>{i+1}</TableCell>
                                                     <TableCell style={{paddingLeft:15,...checkBorder(productData,i)}}>{ele.name}</TableCell>
                                                     <TableCell align="center" style={checkBorder(productData,i)}>{ele.stock}</TableCell>
@@ -511,7 +527,7 @@ function Product(props) {
                                                         appSettings.cust_type === 2 && 
                                                         <TableCell align="center" style={checkBorder(productData,i)}>{ele.sp_price.toFixed(2)}</TableCell>
                                                     }
-                                                    <TableCell align="center" style={checkBorder(productData,i)}><ActionBtn onBag={()=>addToBag(ele)} onEdit={()=>displayModal(true,ele)} onDelete={()=>displayDeleteModal(true,ele.id)}/></TableCell>
+                                                    <TableCell align="center" style={checkBorder(productData,i)}><ActionBtn isAdded={checkInBag(ele)} onBag={()=>addToBag(ele)} onEdit={()=>displayModal(true,ele)} onDelete={()=>displayDeleteModal(true,ele.id)}/></TableCell>
                                                 </TableRow>
                                             )
                                         })

@@ -1,5 +1,5 @@
 import db from './firbase';
-import { getFirestore, collection, getDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
+import { getDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 const checkData = (data)=> {
     if(data != null){
@@ -23,16 +23,16 @@ const checkData = (data)=> {
             showAlert = true;
             color = 'red';
             title = 'Licence Expired';
-            message = 'Your licence is expired, for renewal please contact developer.';
+            message = 'Your license has expired, please contact the developer for renewal.';
         }else if(numberOfDaysLeft > 0 && numberOfDaysLeft < 16){
             renewRequired = true;
             showAlert = false;
             color = 'orange';
-            title = `${numberOfDaysLeft} days left to exipre`;
-            message = 'Your licence is about to expire, for renewal please contact developer';
+            title = `Expiration in ${numberOfDaysLeft} days`;
+            message = 'Your license is about to expire, please contact the developer for renewal.';
         }else{
-            title = 'System Activated';
-            message = 'You have upgraded your system for unlimited features access.';
+            title = 'Application Activated';
+            message = 'Your application has been activated, enjoy the unlimited features it offers!';
         }
 
         return {
@@ -57,8 +57,8 @@ const checkData = (data)=> {
             color : null,
             licence_no : '',
             alertMsg:{
-                title : 'System not active',
-                message : 'Your system is not active, please active your system to use unlimited features'
+                title : 'Application not activated',
+                message : 'Your application is not activated, activate your application to use unlimited features.'
             }
         }
     }
@@ -90,8 +90,8 @@ class FireStoreService{
                         showAlert:true,
                         color : null,
                         alertMsg:{
-                            title : 'System not active',
-                            message : 'Your system is not active, please active your system to use unlimited features'
+                            title : 'Application not activated',
+                            message : 'Your application is not activated, activate your application to use unlimited features.'
                         }
                     });
                 }
@@ -103,6 +103,7 @@ class FireStoreService{
         return new Promise(async(resolve) => {
             try{
                 const snapshot = await getDoc(doc(db, "licence",payload.lin_no));
+                console.log(snapshot)
                 const data = snapshot.exists() ? snapshot.data() : null;
                 if(data != null && !data.is_purchased){
                     let data_payload = {
@@ -117,13 +118,13 @@ class FireStoreService{
                     await setDoc(doc(db, "customers",data_payload.mac_add), data_payload);
                     await updateDoc(doc(db, "licence",payload.lin_no), {is_purchased:true});
                     localStorage.setItem("customer_data", JSON.stringify(data_payload));
-                    resolve({status:true,message:'Congratulations, your system has been activated now'});
+                    resolve({status:true,message:'Congratulations! Your application has been successfully activated.'});
                 }else{
-                    resolve({status:false,message:'Invalid licence, please provide valid licence.'});
+                    resolve({status:false,message:'Invalid licence, please provide a valid licence.'});
                 }
             }catch(err){
                 console.log(err);
-                resolve({status:false,message:'Something went wrong please try again!'});
+                resolve({status:false,message:'Something went wrong, please try again!'});
             }
         });
     }
@@ -140,13 +141,13 @@ class FireStoreService{
                         renew_purchase_done : false
                     }
                     await updateDoc(doc(db, "customers",payload.mac_add),data_payload);
-                    resolve({status:true,message:'Congratulations, your system has been activated now'});
+                    resolve({status:true,message:'Congratulations! Your application has been successfully activated.'});
                 }else{
-                    resolve({status:false,message:'For renewal please contact developer.'});
+                    resolve({status:false,message:'For renewal, please contact with developer."'});
                 }
             }catch(err){
                 console.log(err);
-                resolve({status:false,message:'Something went wrong please try again!'});
+                resolve({status:false,message:'Something went wrong, please try again!'});
             }
         });
     }

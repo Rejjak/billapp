@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Binamate - About</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .contact-header {
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .contact-info {
+      padding: 20px;
+      border-radius: 5px;
+      text-align: center;
+      flex-wrap: wrap;
+    }
+    
+    .contact-info h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .contact-info p {
+      margin: 0;
+      font-size: 11px;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    @media (max-width: 480px) {
+      .contact-container {
+        padding: 10px;
+      }
+      
+      .contact-header {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      
+      .contact-info {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-container">
+    <div class="contact-info">
+        <div style="margin-top: 10px;">
+            <img style="height: 40px;width: 40px;border-radius: 4px;" src="./app_icon.ico"/>
+        </div>
+        <h4>Binamate</h4>
+        <p style="position: relative;bottom: 20px;">(Store Management System)</p>
+        <p>Version: <span id="version"></span></p>
+        <p>Electron: 22.1.0</p>
+        <p>Date: <span id="date_release"></span></p>
+        <p>Commit: </p>
+        <p style="word-wrap: break-word;">6f1af67edf588a72ad4e31e533a67c56bfac5c0c</p>
+        <p>Chromium: <span id="chromium_version"></span></p>
+        <p>OS: <span id="os_name"></span></p>
+        <p>Sandboxed: NO</p>
+        <div style="width: 100%;border-top: 1px solid #ccc;margin-top: 10px;">
+          <p style="font-size: 9px;margin-top: 10px;color: #aaa;">Copyright &copy; <span id="curr_year"></span> Binamate. All Rights Reserved.</p>
+        </div>
+    </div>
+  </div>
+</body>
+<script>
+    const { ipcRenderer } = require('electron');
+
+    ipcRenderer.on('package-info', (event, packageInfo) => {
+      const versionElement = document.getElementById('version');
+      const releaseDate = document.getElementById('date_release');
+      const os_name = document.getElementById('os_name');
+      const chromium_version = document.getElementById('chromium_version');
+      const curr_year = document.getElementById('curr_year');
+      versionElement.textContent = packageInfo.version;
+      releaseDate.textContent = new Date('07/07/2023').toISOString();
+      os_name.textContent = packageInfo.os;
+      chromium_version.textContent = packageInfo.chromiumVersion;
+      curr_year.textContent = new Date().getFullYear();
+    });
+  </script>
+</html>

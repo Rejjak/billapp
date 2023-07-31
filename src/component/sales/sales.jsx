@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect,memo,useContext } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {Box,Grid, Typography, TableContainer,Table,TableBody,TableCell,TableHead,TableRow, Paper, IconButton, TextField, Button, Tooltip, makeStyles, Card, CardContent} from '@material-ui/core';
 import {Autocomplete} from '@material-ui/lab';
 import { useNavigate } from "react-router-dom";
@@ -33,10 +33,18 @@ function Sales(props) {
     const [searchTxt,setSearchTxt] = useState('');
     const [isLoaded,setLoaded] = useState(false);
     const [salesData,setSalesData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [pageNo, setPageNo] = useState(0);
+    const [dataEnd, setDataEnd] = useState(false);
+    const containerRef = useRef(null);
 
     useEffect(()=>{
-        getSales();
-    },[]);
+        if(isLoading){
+            getSales();
+        }
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    },[isLoading]);
 
     const navigateTo = (id)=> {
         navigate(`/print/${id}`);
@@ -65,18 +73,44 @@ function Sales(props) {
     }
 
     const getSales = ()=> {
-        let payload = {
-            req_url : 'sales-get',
-            data : null
+        let newPage = pageNo+1;
+        if(pageNo !== newPage && !dataEnd){
+            let payload = {
+                req_url : 'sales-get',
+                data : {
+                    page: newPage
+                }
+            }
+            console.log(payload);
+            RequestService.addRequest(payload).then((res)=>{
+                setLoaded(true);
+                setIsLoading(false);
+                if(res?.length){
+                    let prevData = [...salesData];
+                    let newData = [...prevData,...res];
+                    setDataEnd(false);
+                    setSalesData(newData);
+                    setPageNo(newPage);
+                    saleTempData = newData;
+                }else{
+                    setDataEnd(true);
+                }
+            }).catch((err)=>{
+                setIsLoading(false);
+                console.log(err);
+            });
         }
-        RequestService.addRequest(payload).then((res)=>{
-            setSalesData(res);
-            saleTempData = res;
-            setLoaded(true);
-        }).catch((err)=>{
-            console.log(err);
-        });
     }
+
+    const handleScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 1) {
+            console.log('load required');
+            if(!dataEnd){
+                setIsLoading(true);
+            }
+        }
+    };
 
     const checkBorder = (arr,i)=> {
         if(i == arr.length -1){
@@ -93,6 +127,7 @@ function Sales(props) {
         }else{
             str = name + ', '+add;
         }
+        str = str.length > 60 ? str.substring(0,48)+'...' : str;
         return str;
     }
 
@@ -128,26 +163,19 @@ function Sales(props) {
 	}
 
     function formatDate(date_obj){
-        var date = new Date(date_obj);
-        var day = date.getDate();
-        var month = date.getMonth()+1;
-        var year = date.getFullYear();
-        if(day<10){
-            day = '0'+day;
-        }
-        if(month<10){
-            month = '0'+month;
-        }
-        var curDate = day+'/'+month+'/'+year;
-        return curDate;
+        return new Date(date_obj).toLocaleString('en-US',{
+            day:'2-digit',
+            month:'2-digit',
+            year:'numeric'
+        })
     }
 
     return (
         <Box mt={2}>
             <AppModal 
             dialogModal={true}
-            title={'Delete product'}
-            subTitle={'Are you sure you want to delete this product?'}
+            title={'Delete receipt'}
+            subTitle={'Are you sure you want to delete this receipt?'}
             handleClose={()=>displayDeleteModal(false)} 
             handleSubmit={()=>deleteProduct()}
             visible={showDeleteModal}/>
@@ -163,7 +191,7 @@ function Sales(props) {
             {
                 (isLoaded && salesData.length == 0) ?
                 <Typography style={{fontFamily:'Roboto-Medium',textAlign:'center',marginTop:100}} variant={'h6'}>No results found</Typography>:
-                <TableContainer style={{marginTop:20}} className={classes.paperBg} component={Paper}>
+                <TableContainer ref={containerRef} style={{marginTop:20}} className={classes.paperBg} component={Paper}>
                     <Table className={classes.normalBorder} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} size={'small'} aria-label="spanning table">
                         <TableHead className={classes.tableHeaderBg}>
                             <TableRow>
@@ -196,6 +224,12 @@ function Sales(props) {
                             }
                         </TableBody>
                     </Table>
+                    {
+                        (pageNo > 0 && isLoading && !dataEnd) &&
+                        <Box borderTop={1} className={classes.loadingMore}>
+                            <Typography style={{textAlign:'center'}}>Loading more, please wait...</Typography>
+                        </Box>
+                    }
                 </TableContainer>
             }
         </Box>
