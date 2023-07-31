@@ -3,3 +3,17 @@ node_modules/
 dist/
 
 build/
+
+src/
+
+public/
+
+electron/
+
+electron-builder-config.js
+
+package-lock.json
+
+.env
+
+
